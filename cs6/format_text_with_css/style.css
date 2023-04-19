@@ -1,0 +1,13 @@
+p {
+    text-indent: 60px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-family: sans-serif;
+}
+.container {
+    padding-left: 80px;
+    padding-right: 80px;
+}
+a {
+    text-decoration: none;
+}
