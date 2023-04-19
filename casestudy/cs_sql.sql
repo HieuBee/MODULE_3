@@ -128,20 +128,82 @@ values (1, 'Villa', 1000, 7000, 17, 'Phong khach, phong ngu, san vuong, ho boi',
 insert into nhan_vien
 values (1, 'Dinh Bao Dieu Khue', '2000-12-17', 0345675935, 12000, 0345675935, 'khuehaydoi@gmail.com', '54 Ton That Thiep', 5, 4, 4), 
 (2, 'Phan Van Minh Hieu', '2002-12-31', 0934756548, 17000, 0934756548, 'hieuhaydo@gmail.com', '54 Ton That Thiep', 6, 4, 4);
+insert into nhan_vien
+values (3, 'Dinh Hoang Khai', '2003-2-21', 0917832315, 5000, 0917832315, 'khai@gmail,com', 'Da Nang', 2, 2, 3);
 
 insert into khach_hang
 values (1, 3, 'Nguyen Van A', '2021-11-17', 1, 0864297531, 0864297531, 'a@gmail.com', '000 Biet'),
 (2, 4, 'Dinh Dieu B', '2000-11-17', 0, 0382612881, 0382612881, 'b@gmail.com', '000 Biet1'),
 (3, 2, 'Phan Minh C', '2002-1-17', 1, 0292717274, 0292717274, 'c@gmail.com', '000 Biet2');
+insert into khach_hang
+values (4, 1, 'Dinh Hoang T', '1999-12-12', 1, 0982716384, 0982716384, 't@gmail.com', 'Da Nang'), 
+(5, 1, 'Truong Cong C', '2003-5-3', 1, 0927561837, 0927561837, 'ccc@gmail.com', 'Da Nang');
+
 
 insert into hop_dong
 values (1, '2023-4-14', '2023-4-15', 500, 1, 1, 1), (2, '2023-4-14', '2023-4-15', 200, 1, 2, 3),
 (3, '2023-4-14', '2023-4-15', 400, 1, 3, 2);
+insert into hop_dong
+values (4, '2023-4-16', '2023-4-17', 350, 1, 2, 2), (5, '2023-4-16', '2023-4-17', 350, 1, 5, 2), (6, '2023-4-16', '2023-4-17', 700, 1, 5, 1);
 
 insert into hop_dong_chi_tiet
 values (1, 1, 1, 1), (2, 1, 2, 4), (3, 1, 3, 2);
+insert into hop_dong_chi_tiet
+values (4, 2, 4, 4), (5, 2, 5, 2), (6, 3, 6, 1);
 
 -- Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là 
 -- một trong các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
 select * from nhan_vien
-where ho_ten like "P%";
+where (ho_ten like "D%" or ho_ten like "H%" or ho_ten like "T%" or ho_ten like "K%") and length(ho_ten) <= 15;
+
+-- Hiển thị thông tin của tất cả khách hàng có độ tuổi từ 18 đến 50 tuổi và
+-- có địa chỉ ở “Đà Nẵng” hoặc “Quảng Trị”.
+select * from khach_hang 
+where (2023 - year(ngay_sinh) >= 18 or 2023 - year(ngay_sinh) <= 50) and (dia_chi = 'Da Nang' or 'Quang Tri');
+
+-- Đếm xem tương ứng với mỗi khách hàng đã từng đặt phòng bao nhiêu
+-- lần. Kết quả hiển thị được sắp xếp tăng dần theo số lần đặt phòng của
+-- khách hàng. Chỉ đếm những khách hàng nào có Tên loại khách hàng là
+-- “Diamond”.
+select hd.ma_khach_hang, kh.ho_ten, count(hd.ma_khach_hang) as order_time from khach_hang as kh right join hop_dong as hd
+on kh.ma_khach_hang = hd.ma_khach_hang
+where kh.ma_loai_khach = 1
+group by hd.ma_khach_hang
+order by order_time desc;
+
+-- Hiển thị ma_khach_hang, ho_ten, ten_loai_khach, ma_hop_dong,
+-- ten_dich_vu, ngay_lam_hop_dong, ngay_ket_thuc, tong_tien (Với
+-- tổng tiền được tính theo công thức như sau: Chi Phí Thuê + Số Lượng *
+-- Giá, với Số Lượng và Giá là từ bảng dich_vu_di_kem,
+-- hop_dong_chi_tiet) cho tất cả các khách hàng đã từng đặt phòng. (những
+-- khách hàng nào chưa từng đặt phòng cũng phải hiển thị ra).
+delimiter //
+create function money_total(chi_phi_thue int, so_luong int, gia double)
+returns int
+READS SQL DATA
+DETERMINISTIC
+begin
+	DECLARE money_total INT DEFAULT 0;
+    select chi_phi_thue + so_luong * gia into money_total;
+    return money_total;
+end //
+delimiter ;
+
+select kh.ma_khach_hang, kh.ho_ten, lk.ten_loai_khach, hd.ma_hop_dong, dv.ten_dich_vu, hd.ngay_lam_hop_dong, hd.ngay_ket_thuc, 
+money_total(dv.chi_phi_thue, hdct.so_luong, dvdk.gia) as money_total from khach_hang as kh 
+inner join loai_khach as lk on kh.ma_loai_khach = lk.ma_loai_khach 
+left join hop_dong as hd on kh.ma_khach_hang = hd.ma_khach_hang
+left join dich_vu as dv on dv.ma_dich_vu = hd.ma_dich_vu
+left join hop_dong_chi_tiet as hdct on hdct.ma_hop_dong = hd.ma_hop_dong
+left join dich_vu_di_kem as dvdk on dvdk.ma_dich_vu_di_kem = hdct.ma_dich_vu_di_kem;
+
+-- Hiển thị ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue,
+-- ten_loai_dich_vu của tất cả các loại dịch vụ chưa từng được khách hàng
+-- thực hiện đặt từ quý 1 của năm 2021 (Quý 1 là tháng 1, 2, 3).
+select dv.ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue, ten_loai_dich_vu, hd.ngay_lam_hop_dong from dich_vu as dv 
+left join loai_dich_vu as ldv on dv.ma_loai_dich_vu = ldv.ma_loai_dich_vu 
+left join hop_dong as hd on hd.ma_dich_vu = dv.ma_dich_vu
+where dv.ma_dich_vu is null 
+and month(ngay_lam_hop_dong) = 4;
+
+
