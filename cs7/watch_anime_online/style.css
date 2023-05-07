@@ -1,0 +1,96 @@
+.container {
+    max-width: 1583px;
+}
+.header {
+    background: #424242;
+    position: fixed;
+    width: 100%;
+}
+.logo a{
+    text-decoration: none;
+}
+.menu a {
+    padding: 5px 5px;
+    text-decoration: none;
+    color: white;
+}
+.menu li{
+    display: inline-block;
+    list-style-type: none;
+    padding: 5px 5px;
+    margin: 10px 10px;
+    font-weight: bold;
+}
+.menu li:hover {
+    color: black;
+    background: white;
+    border: 1px none;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.menu a:hover {
+    color: black;
+}
+.menu ul {
+    margin: 0px;
+}
+.btn {
+    background: white;
+}
+
+.content a {
+    display: inline-block;
+    padding: 15px;
+    text-decoration: none;
+    color: #2d2d2d;
+    font-weight: 500;
+}
+.content p {
+    max-width: 350px;
+}
+.content-item {
+    display: flex;
+    justify-content: flex-start;
+}
+.content-page a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #2d2d2d;
+    font-weight: 500;
+}
+.content-page p {
+    max-width: 350px;
+}
+.body {
+    padding-top: 50px;
+}
+.description {
+    background: #f2f2f2;
+    border-radius: 15px;
+}
+.description p {
+    padding: 10px 10px;
+}
+.chanel {
+    display: flex;
+    justify-content: flex-start;
+}
+.btn-subscribe {
+    margin-left: 20px;
+    border: none;
+    background: black;
+    color: white;
+    border-radius: 40px;
+    width: 90px;
+    height: 40px;
+}
+.content-footer {
+    background: #424242;
+    width: 100%;
+    height: 50px;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
